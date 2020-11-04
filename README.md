@@ -12,4 +12,4 @@ Use `gradlew assembleDist` to create distribution files that can be installed by
 ### Custom REST API
 
 Does  deploy a custom REST endpoint that can be used to move trackers into folder.
-Documentation is automatically added to the Swagger documentation ([CODEBEAMER/v3/swagger/editor.spr#/Custom/moveTracker])
+Documentation is automatically added to the Swagger documentation (CODEBEAMER/v3/swagger/editor.spr#/Custom/moveTracker)
