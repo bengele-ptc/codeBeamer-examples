@@ -3,7 +3,6 @@ package com.intland.codebeamer.controller.rest.v2.examples;
 
 import static com.intland.codebeamer.utils.MessageFormatterUtil.format;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -13,7 +12,6 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +22,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intland.codebeamer.ajax.tree.TrackerHomePageTreeNode;
 import com.intland.codebeamer.controller.rest.v2.AbstractRestController;
-import com.intland.codebeamer.controller.rest.v2.exception.ResourceForbiddenException;
 import com.intland.codebeamer.controller.rest.v2.exception.ResourceNotFoundException;
 import com.intland.codebeamer.controller.rest.v2.exception.ResourceUnauthorizedException;
 import com.intland.codebeamer.controller.support.TrackerHomePageSupport;
@@ -32,7 +29,6 @@ import com.intland.codebeamer.manager.AccessRightsException;
 import com.intland.codebeamer.manager.TrackerManager;
 import com.intland.codebeamer.persistence.dto.TrackerDto;
 import com.intland.codebeamer.persistence.dto.UserDto;
-import com.intland.codebeamer.utils.Common;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
@@ -56,9 +52,13 @@ public class CustomRest extends AbstractRestController {
 	}
 
 	@Operation(summary = "Move to Folder", tags = { "Tracker", "Custom" }, description = "Move Tracker into a folder.")
-	@ApiResponses(value = { @ApiResponse(responseCode = "200"), @ApiResponse(responseCode = "404") })
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "204", description = "Tracker was moved successfully."),
+			@ApiResponse(responseCode = "404", description = "Tracker not found."),
+			@ApiResponse(responseCode = "401", description = "User is not authorized to access the tracker hierarchy.") }
+	)
 	@RequestMapping(value = "trackers/{trackerId}/moveTo/{path}", method = RequestMethod.POST)
-	public void getTrackers(@Parameter(hidden = true) HttpServletRequest request, @PathVariable("trackerId") Integer trackerId,
+	public void moveTracker(@Parameter(hidden = true) HttpServletRequest request, @PathVariable("trackerId") Integer trackerId,
 			@PathVariable("path") String path)
 			throws ResourceNotFoundException, ResourceUnauthorizedException {
 		String url = format("trackers/{trackerId}/moveTo/{path}", trackerId, path);
@@ -72,6 +72,7 @@ public class CustomRest extends AbstractRestController {
 			Integer projectId = tracker.getProject().getId();
 			List<TrackerHomePageTreeNode> treeNodes = homeSupport.getTreeNodes(request, user, projectId, null, null, false);
 			removeTrackerNode(treeNodes, trackerId);
+			//TODO should support folder hierarchy represented as path string an not only root folder.
 			findOrCreateTargetFolder(path, treeNodes).getChildren().add(createTrackerNode(tracker));
 
 			homeSupport.storeStructure(request, user, projectId, new ObjectMapper().writeValueAsString(mapNodes(treeNodes)));
@@ -84,9 +85,7 @@ public class CustomRest extends AbstractRestController {
 	}
 
 	private TrackerHomePageTreeNode createTrackerNode(TrackerDto tracker) {
-		TrackerHomePageTreeNode trackerNode = new TrackerHomePageTreeNode(null, null);
-		trackerNode.setTrackerId(tracker.getId());
-		return trackerNode;
+		return new TrackerHomePageTreeNode(tracker.getId().toString(), null);
 	}
 
 	private TrackerHomePageTreeNode findOrCreateTargetFolder(String path, List<TrackerHomePageTreeNode> treeNodes) {
@@ -95,6 +94,7 @@ public class CustomRest extends AbstractRestController {
 				.findFirst().orElseGet(() -> {
 					TrackerHomePageTreeNode newNode = new TrackerHomePageTreeNode(null, path);
 					newNode.setFolder(true);
+					treeNodes.add(newNode);
 					return newNode;
 				});
 	}
