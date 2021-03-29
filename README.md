@@ -5,7 +5,7 @@ Set variable `CB_HOME` e.g. in `%HOMEPATH%/.gradle/gradle.properties` to point t
 
 Use `gradlew eclipse` to create project configuration for Eclipse.
 
-Use `gradlew build` to create distribution files that can be installed by extracting into the codeBeamer installation folder.
+Use `gradlew build` to create distribution files that can be installed into the codeBeamer.
 
 ## Examples
 
@@ -13,3 +13,7 @@ Use `gradlew build` to create distribution files that can be installed by extrac
 
 Does  deploy a custom REST endpoint that can be used to move trackers into folder.
 Documentation is automatically added to the Swagger documentation (CODEBEAMER/v3/swagger/editor.spr#/Custom/moveTracker)
+
+### Tracker Item Listener
+
+Adds a listener that appends some text once a Test Run reaches the runnable state.
