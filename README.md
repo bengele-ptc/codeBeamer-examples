@@ -5,7 +5,7 @@ Set variable `CB_HOME` e.g. in `%HOMEPATH%/.gradle/gradle.properties` to point t
 
 Use `gradlew eclipse` to create project configuration for Eclipse.
 
-Use `gradlew build` to create distribution files that can be installed into the codeBeamer.
+Use `gradlew build` to create distribution files that can be installed into the codeBeamer by extracting to the folder containing the codeBeamer webapp )usually `<codeBeamer Installation>/tomcat/webapps/cb`)
 
 ## Examples
 
